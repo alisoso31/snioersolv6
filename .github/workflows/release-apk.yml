@@ -1,23 +1,24 @@
-name: Publish APK Release
-
-permissions:
-  contents: write
+name: Release APK
 
 on:
   push:
     tags:
-      - 'v*.*.*'
+      - '*'
+
+permissions:
+  contents: write
 
 jobs:
   release:
     runs-on: ubuntu-latest
-
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-      - name: Create GitHub Release and upload APK
+      - name: Upload APK to GitHub Release
         uses: softprops/action-gh-release@v1
         with:
+          tag_name: ${{ github.ref_name }}
           files: apk/app-release.apk
         env:
           GITHUB_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
