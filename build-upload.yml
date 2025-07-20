@@ -1,42 +1,41 @@
-name: Build APK & Upload to Google Drive
+name: Build APK and Upload to Google Drive
 
 on:
   push:
-    branches: [main]
+    branches:
+      - main
 
 jobs:
-  build-and-upload:
+  build:
     runs-on: ubuntu-latest
 
-    env:
-      FLUTTER_VERSION: '3.13.1'  # mets la version flutter que tu veux
-      GOOGLE_DRIVE_FOLDER_ID: ${{ secrets.GOOGLE_DRIVE_FOLDER_ID }}
-
     steps:
-    - name: Checkout repo
-      uses: actions/checkout@v3
+      - name: Checkout repo
+        uses: actions/checkout@v3
 
-    - name: Install Flutter SDK
-      uses: subosito/flutter-action@v2
-      with:
-        flutter-version: ${{ env.FLUTTER_VERSION }}
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
 
-    - name: Flutter pub get
-      run: flutter pub get
+      - name: Install dependencies
+        run: |
+          npm ci
+          npm install @capacitor/cli
+          npx cap sync
 
-    - name: Build APK (release)
-      run: flutter build apk --release
+      - name: Setup Java and Android SDK
+        uses: android-actions/setup-android@v2
 
-    - name: Setup Google Drive uploader
-      uses: w9jds/google-drive-upload@v1.4.1
-      with:
-        client_id: ${{ secrets.GOOGLE_CLIENT_ID }}
-        client_secret: ${{ secrets.GOOGLE_CLIENT_SECRET }}
-        refresh_token: ${{ secrets.GOOGLE_REFRESH_TOKEN }}
-        folder_id: ${{ secrets.GOOGLE_DRIVE_FOLDER_ID }}
-        source: build/app/outputs/flutter-apk/app-release.apk
-        destination: snioersolv6/app-release.apk
-        overwrite: true
+      - name: Build Android APK
+        run: |
+          cd android
+          ./gradlew assembleRelease
 
-    - name: Confirm upload success
-      run: echo "APK uploaded successfully to Google Drive folder ID $GOOGLE_DRIVE_FOLDER_ID"
+      - name: Upload to Google Drive
+        uses: Jodebu/upload-google-drive-action@v1
+        with:
+          credentials: ${{ secrets.SERVICE_ACCOUNT_KEY }}
+          folderId: ${{ secrets.GOOGLE_DRIVE_FOLDER_ID }}
+          source: android/app/build/outputs/apk/release/app-release.apk
+          name: snipersol.apk
