@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">snioersol</string>
+    <string name="title_activity_main">snioersol</string>
+    <string name="package_name">com.snioersol.app</string>
+    <string name="custom_url_scheme">com.snioersol.app</string>
+</resources>
