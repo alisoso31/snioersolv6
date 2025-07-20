@@ -1,6 +1,8 @@
 # Script pour configurer Gradle et générer l'APK React Native
 cd C:\Users\hamadouche\Downloads\snioersolv6
 
+git restore android/gradle.properties || echo "Aucune modification à restaurer pour gradle.properties"
+
 echo 'pluginManagement {
     repositories {
         gradlePluginPortal()
@@ -84,6 +86,10 @@ distributionPath=wrapper/dists
 distributionUrl=https\://services.gradle.org/distributions/gradle-8.0-bin.zip
 zipStoreBase=GRADLE_USER_HOME
 zipStorePath=wrapper/dists' > android/gradle/wrapper/gradle-wrapper.properties
+
+echo 'org.gradle.jvmargs=-Xmx4g -XX:MaxMetaspaceSize=512m
+android.useAndroidX=true
+android.enableJetifier=true' > android/gradle.properties
 
 cd android
 .\gradlew.bat clean
