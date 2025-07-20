@@ -1,0 +1,39 @@
+=== RAPPORT GIT COMPLET ===
+📅 Date : 07/20/2025 09:16:02
+
+--- ÉTAT ACTUEL DU DÉPÔT ---
+On branch main
+Your branch is up to date with 'origin/main'.
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+	rapport_git_20250720_091602.txt
+
+nothing added to commit but untracked files present (use "git add" to track)
+
+--- 10 DERNIERS COMMITS ---
+commit 2d0b37424181144e8760005fe1470ec22f117feb
+Author: soso <alisoso31@gmail.com>
+Date:   Sun Jul 20 00:55:55 2025 +0200
+
+    premier commit
+
+ README.md | 1 +
+ 1 file changed, 1 insertion(+)
+
+commit d12cecb92d86c9f654714dd24055ef74feb2c11c
+Author: soso <alisoso31@gmail.com>
+Date:   Sun Jul 20 00:50:56 2025 +0200
+
+    premier commit
+
+ README.md | 1 +
+ 1 file changed, 1 insertion(+)
+
+--- LISTE DES FICHIERS TRACKÉS ---
+README.md
+
+--- AUTEURS DU DÉPÔT ---
+     2	soso
+
+=== FIN DU RAPPORT ===
