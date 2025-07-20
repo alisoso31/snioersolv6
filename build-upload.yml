@@ -1,0 +1,42 @@
+name: Build APK & Upload to Google Drive
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  build-and-upload:
+    runs-on: ubuntu-latest
+
+    env:
+      FLUTTER_VERSION: '3.13.1'  # mets la version flutter que tu veux
+      GOOGLE_DRIVE_FOLDER_ID: ${{ secrets.GOOGLE_DRIVE_FOLDER_ID }}
+
+    steps:
+    - name: Checkout repo
+      uses: actions/checkout@v3
+
+    - name: Install Flutter SDK
+      uses: subosito/flutter-action@v2
+      with:
+        flutter-version: ${{ env.FLUTTER_VERSION }}
+
+    - name: Flutter pub get
+      run: flutter pub get
+
+    - name: Build APK (release)
+      run: flutter build apk --release
+
+    - name: Setup Google Drive uploader
+      uses: w9jds/google-drive-upload@v1.4.1
+      with:
+        client_id: ${{ secrets.GOOGLE_CLIENT_ID }}
+        client_secret: ${{ secrets.GOOGLE_CLIENT_SECRET }}
+        refresh_token: ${{ secrets.GOOGLE_REFRESH_TOKEN }}
+        folder_id: ${{ secrets.GOOGLE_DRIVE_FOLDER_ID }}
+        source: build/app/outputs/flutter-apk/app-release.apk
+        destination: snioersolv6/app-release.apk
+        overwrite: true
+
+    - name: Confirm upload success
+      run: echo "APK uploaded successfully to Google Drive folder ID $GOOGLE_DRIVE_FOLDER_ID"
