@@ -1,97 +1,16 @@
-# Script pour configurer Gradle et générer l'APK React Native
+# Script pour configurer Gradle et générer l'APK Capacitor
 cd C:\Users\hamadouche\Downloads\snioersolv6
-
+setx ANDROID_HOME "C:\Users\hamadouche\AppData\Local\Android\Sdk"
+$env:ANDROID_HOME = "C:\Users\hamadouche\AppData\Local\Android\Sdk"
 git restore android/gradle.properties || echo "Aucune modification à restaurer pour gradle.properties"
-
-echo 'pluginManagement {
-    repositories {
-        gradlePluginPortal()
-        google()
-        mavenCentral()
-    }
-}
-dependencyResolutionManagement {
-    repositories {
-        google()
-        mavenCentral()
-    }
-}
-rootProject.name = "snioersolv6"
-include ":app"' > android/settings.gradle
-
-echo 'buildscript {
-    ext {
-        buildToolsVersion = "33.0.0"
-        minSdkVersion = 21
-        compileSdkVersion = 33
-        targetSdkVersion = 33
-        kotlinVersion = "1.8.0"
-        androidXCore = "1.9.0"
-    }
-    repositories {
-        google()
-        mavenCentral()
-    }
-    dependencies {
-        classpath("com.android.tools.build:gradle:8.1.0")
-        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:1.8.0")
-    }
-}
-
-allprojects {
-    repositories {
-        google()
-        mavenCentral()
-        maven { url "https://www.jitpack.io" }
-    }
-}' > android/build.gradle
-
-echo 'plugins {
-    id "com.android.application"
-    id "org.jetbrains.kotlin.android"
-}
-
-android {
-    compileSdk 33
-
-    defaultConfig {
-        applicationId "com.snioersolv6"
-        minSdk 21
-        targetSdk 33
-        versionCode 1
-        versionName "1.0"
-        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
-    }
-
-    buildTypes {
-        release {
-            minifyEnabled false
-            proguardFiles getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro"
-        }
-    }
-}
-
-dependencies {
-    implementation "androidx.core:core:1.9.0"
-    implementation "com.facebook.react:react-native:+"
-    implementation "androidx.appcompat:appcompat:1.6.1"
-    implementation "androidx.swiperefreshlayout:swiperefreshlayout:1.1.0"
-    testImplementation "junit:junit:4.13.2"
-    androidTestImplementation "androidx.test.ext:junit:1.1.5"
-    androidTestImplementation "androidx.test.espresso:espresso-core:3.5.1"
-}' > android/app/build.gradle
-
-echo 'distributionBase=GRADLE_USER_HOME
-distributionPath=wrapper/dists
-distributionUrl=https\://services.gradle.org/distributions/gradle-8.0-bin.zip
-zipStoreBase=GRADLE_USER_HOME
-zipStorePath=wrapper/dists' > android/gradle/wrapper/gradle-wrapper.properties
-
-echo 'org.gradle.jvmargs=-Xmx4g -XX:MaxMetaspaceSize=512m
-android.useAndroidX=true
-android.enableJetifier=true' > android/gradle.properties
-
+echo 'pluginManagement { repositories { gradlePluginPortal() google() mavenCentral() } } dependencyResolutionManagement { repositories { google() mavenCentral() flatDir { dirs "../capacitor-corda-android-plugins/src/main/libs", "libs" } } } rootProject.name = "snioersolv6" include ":app" include ":capacitor-android" include ":capacitor-cordova-android-plugins"' > android/settings.gradle
+echo 'buildscript { ext { compileSdkVersion = 34 minSdkVersion = 21 targetSdkVersion = 34 androidxAppCompatVersion = "1.6.1" androidxCoordinatorLayoutVersion = "1.2.0" coreSplashScreenVersion = "1.0.0" junitVersion = "4.13.2" androidxJunitVersion = "1.1.5" androidxEspressoCoreVersion = "3.5.1" kotlin_version = "1.8.21" } repositories { google() mavenCentral() } dependencies { classpath "com.android.tools.build:gradle:8.1.4" classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version" classpath "com.google.gms:google-services:4.3.15" } } allprojects { repositories { google() mavenCentral() maven { url "https://www.jitpack.io" } flatDir { dirs "../capacitor-cordova-android-plugins/src/main/libs", "libs" } } }' > android/build.gradle
+echo 'apply plugin: "com.android.application" apply plugin: "kotlin-android" android { namespace "com.snioersol.app" compileSdkVersion rootProject.ext.compileSdkVersion compileOptions { sourceCompatibility JavaVersion.VERSION_17 targetCompatibility JavaVersion.VERSION_17 } defaultConfig { applicationId "com.snioersol.app" minSdkVersion rootProject.ext.minSdkVersion targetSdkVersion rootProject.ext.targetSdkVersion versionCode 1 versionName "1.0" testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner" aaptOptions { ignoreAssetsPattern "!.svn:!.git:!.ds_store:!*.scc:.*:!CVS:!thumbs.db:!picasa.ini:!*~" } } buildTypes { release { minifyEnabled false proguardFiles getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro" } } } dependencies { implementation fileTree(include: ["*.jar"], dir: "libs") implementation "androidx.appcompat:appcompat:$androidxAppCompatVersion" implementation "androidx.coordinatorlayout:coordinatorlayout:$androidxCoordinatorLayoutVersion" implementation "androidx.core:core-splashscreen:$coreSplashScreenVersion" implementation project(":capacitor-android") implementation project(":capacitor-cordova-android-plugins") testImplementation "junit:junit:$junitVersion" androidTestImplementation "androidx.test.ext:junit:$androidxJunitVersion" androidTestImplementation "androidx.test.espresso:espresso-core:$androidxEspressoCoreVersion" implementation "com.google.android.material:material:1.9.0" } apply from: "capacitor.build.gradle" try { def servicesJSON = file("google-services.json") if (servicesJSON.text) { apply plugin: "com.google.gms.google-services" } } catch(Exception e) { logger.info("google-services.json not found, google-services plugin not applied. Push Notifications won't work") }' > android/app/build.gradle
+echo 'distributionBase=GRADLE_USER_HOME distributionPath=wrapper/dists distributionUrl=https\://services.gradle.org/distributions/gradle-8.0-bin.zip zipStoreBase=GRADLE_USER_HOME zipStorePath=wrapper/dists' > android/gradle/wrapper/gradle-wrapper.properties
+echo 'org.gradle.jvmargs=-Xmx4g -XX:MaxMetaspaceSize=512m android.useAndroidX=true android.enableJetifier=true' > android/gradle.properties
 cd android
 .\gradlew.bat clean
+if (-not $?) { echo "Erreur lors du clean, exécution avec stacktrace" ; .\gradlew.bat clean --stacktrace ; exit 1 }
 .\gradlew.bat assembleRelease
+if (-not $?) { echo "Erreur lors du build, exécution avec stacktrace" ; .\gradlew.bat assembleRelease --stacktrace ; exit 1 }
 cd ..
