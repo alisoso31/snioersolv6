@@ -1,0 +1,21 @@
+name: Publish APK Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'  # Déclenche à chaque push d'un tag au format vX.X.X
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Create GitHub Release and upload APK
+        uses: softprops/action-gh-release@v1
+        with:
+          files: apk/app-release.apk
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
