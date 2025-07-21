@@ -1,4 +1,4 @@
-name: Android Build
+name: Build Android APK
 
 on:
   push:
@@ -10,14 +10,23 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repo
+      - name: 📥 Checkout du code
         uses: actions/checkout@v3
 
-      - name: Setup JDK 17
+      - name: 🧰 Setup Java
         uses: actions/setup-java@v3
         with:
-          java-version: '17'
           distribution: 'temurin'
+          java-version: '17'
 
-      - name: Build Release APK
-        run: ./gradlew assembleRelease
+      - name: 📦 Donner les permissions à gradlew
+        run: chmod +x ./gradlew
+
+      - name: 🛠️ Build APK (Debug)
+        run: ./gradlew assembleDebug
+
+      - name: 📤 Upload APK
+        uses: actions/upload-artifact@v3
+        with:
+          name: HelloShellApp-APK
+          path: app/build/outputs/apk/debug/*.apk
