@@ -1,0 +1,121 @@
+# --- Crée la structure ---
+mkdir -p SnipeSolv1/{app/src/main/{java/com/grokbot,res/{layout,values}},gradle/wrapper}
+cd SnipeSolv1
+
+# --- build.gradle (root) ---
+cat > build.gradle <<'EOF'
+buildscript {
+    dependencies { classpath 'com.android.tools.build:gradle:8.1.0' }
+}
+allprojects {
+    repositories { google(); mavenCentral() }
+}
+EOF
+
+# --- settings.gradle ---
+cat > settings.gradle <<'EOF'
+include ':app'
+EOF
+
+# --- app/build.gradle ---
+cat > app/build.gradle <<'EOF'
+plugins {
+    id 'com.android.application'
+    id 'kotlin-android'
+}
+android {
+    namespace 'com.grokbot'
+    compileSdk 34
+    defaultConfig {
+        applicationId "com.grokbot"
+        minSdk 26
+        targetSdk 34
+        versionCode 1
+        versionName "1.0"
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+}
+dependencies {
+    implementation 'androidx.appcompat:appcompat:1.6.1'
+    implementation 'com.squareup.okhttp3:okhttp:4.12.0'
+    implementation 'androidx.security:security-crypto:1.1.0-alpha06'
+}
+EOF
+
+# --- MainActivity.kt ---
+cat > app/src/main/java/com/grokbot/MainActivity.kt <<'EOF'
+package com.grokbot
+import android.os.Bundle
+import androidx.appcompat.app.AppCompatActivity
+class MainActivity : AppCompatActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        TradingBot.start(this)
+    }
+}
+EOF
+
+# --- TradingBot.kt ---
+cat > app/src/main/java/com/grokbot/TradingBot.kt <<'EOF'
+package com.grokbot
+import android.content.Context
+import kotlinx.coroutines.*
+object TradingBot {
+    fun start(ctx: Context) {
+        CoroutineScope(Dispatchers.IO).launch {
+            while (true) {
+                println("🎯 Trading activé")
+                delay(60000)
+            }
+        }
+    }
+}
+EOF
+
+# --- WalletVault.kt ---
+cat > app/src/main/java/com/grokbot/WalletVault.kt <<'EOF'
+package com.grokbot
+import android.content.Context
+import androidx.security.crypto.EncryptedSharedPreferences
+import androidx.security.crypto.MasterKeys
+object WalletVault {
+    fun saveSeed(ctx: Context, seed: String) {
+        val alias = MasterKeys.getOrCreate(MasterKeys.AES256_GCM_SPEC)
+        val prefs = EncryptedSharedPreferences.create("vault", alias, ctx,
+            EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
+            EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM)
+        prefs.edit().putString("seed", seed).apply()
+    }
+    fun getSeed(ctx: Context): String? =
+        EncryptedSharedPreferences.create("vault", alias, ctx,
+            EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
+            EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM)
+            .getString("seed", null)
+}
+EOF
+
+# --- strings.xml ---
+cat > app/src/main/res/values/strings.xml <<'EOF'
+<resources>
+    <string name="app_name">SnipeSolv1</string>
+</resources>
+EOF
+
+# --- Gradle wrapper ---
+wget -q https://services.gradle.org/distributions/gradle-8.1.1-bin.zip
+unzip -q gradle-8.1.1-bin.zip
+mv gradle-8.1.1 gradle
+./gradle/bin/gradle wrapper
+
+# --- Compilation & signature ---
+./gradlew assembleRelease
+keytool -genkey -v -keystore grok.keystore -alias grok -keyalg RSA -keysize 2048 -validity 10000 -storepass "snipepass" -keypass "snipepass" -dname "CN=grok"
+zipalign -v 4 app/build/outputs/apk/release/app-release-unsigned.apk SnipeSolv1-aligned.apk
+jarsigner -verbose -sigalg SHA256withRSA -digestalg SHA256 -keystore grok.keystore -storepass "snipepass" -keypass "snipepass" SnipeSolv1-aligned.apk grok
+mv SnipeSolv1-aligned.apk SnipeSolv1.apk
+echo "✅ APK signée : $(pwd)/SnipeSolv1.apk"
